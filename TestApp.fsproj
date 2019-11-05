@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="LanguageTutorial.fs" />
     <Compile Include="Taxes.fs" />
     <Compile Include="Morse.fs" />
     <Compile Include="Program.fs" />

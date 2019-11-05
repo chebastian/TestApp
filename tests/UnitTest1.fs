@@ -1,6 +1,7 @@
 module tests
 
 open NUnit.Framework
+open LanguageTutorial
 
 [<SetUp>]
 let Setup () =
@@ -24,3 +25,13 @@ let Test1 () =
     Assert.That(totalTax 12000.0 , Is.EqualTo(200.))
     Assert.That(totalTax 56789.0 , Is.EqualTo(8697.25))
     Assert.That(totalTax 1234567.0 |> int , Is.EqualTo(int 473326.8))
+
+
+[<Test>]
+let dayOne () =
+   let d = new DayOne() 
+   let input =  d.input;
+   input |> Array.map (fun x -> int x) |> Array.sum  |> printf "%A"
+   input |> Array.map (fun x -> int x) |> printf "%A"
+
+   ()
