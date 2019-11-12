@@ -32,6 +32,5 @@ let dayOne () =
    let d = new DayOne() 
    let input =  d.input;
    input |> Array.map (fun x -> int x) |> Array.sum  |> printf "%A"
-   input |> Array.map (fun x -> int x) |> printf "%A"
 
    ()

@@ -12,4 +12,8 @@
     <Compile Include="Program.fs" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Include="input.txt" />
+  </ItemGroup>
+
 </Project>
