@@ -43,6 +43,23 @@ module DayTwo  =
         | x::xs when x = "99" -> OPCode.Halt
         | _ -> OPCode.Error
 
+    let GetAdresses (input:string) = 
+        match input.Split(delim) |> Array.toList with
+        | [_;a;b;_] -> (int a, int b)
+        | _ -> raise (new System.ArgumentException("No src and dest provided"))
+
+    let GetOutAddr (input:string) = 
+        match input.Split(delim) |> Array.toList with
+        | [_;_;_;addr] -> addr
+        | _ -> raise (new System.ArgumentException("No src and dest provided"))
+
+    let Apply (input:string) (op:OPCode) (rest:string)=
+        let addr = GetAdresses input
+        let outd = GetOutAddr input
+        match op with
+        | Add ->  0
+        | _ -> 0
+
 [<EntryPoint>]
 let main argv =
     printfn "Hello World from F#!"
