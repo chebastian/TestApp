@@ -53,6 +53,10 @@ module DayTwo  =
         | [_;_;_;addr] -> addr
         | _ -> raise (new System.ArgumentException("No src and dest provided"))
 
+    let GetValuesAt (input:string) (a,b) = 
+        let nums = input.Split(delim)
+        (nums.GetValue(int a),nums.GetValue(int b))
+
     let Apply (input:string) (op:OPCode) (rest:string)=
         let addr = GetAdresses input
         let outd = GetOutAddr input
