@@ -136,16 +136,18 @@ let main argv =
     let mutable mutIns = ins
     let mutable completed = false;
     let len =  (Seq.length ins ) / 4
-    
-    for x in [0..len]  do 
-        let inst = DayTwo.GetInstruction x mutIns
-        if(inst.Code = DayTwo.OPCode.Halt) then
-            let result = Seq.item 0 mutIns
-            ()
-            
 
-        let res = DayTwo.ResultOf (Seq.toList mutIns) inst
-        mutIns <- DayTwo.WriteResult mutIns res
+    let rec Program instructionPtr memory =
+        let code = DayTwo.GetInstruction instructionPtr memory
+        if code.Code = DayTwo.OPCode.Halt then
+            Seq.item 0 memory
+        else 
+            let res = DayTwo.ResultOf (Seq.toList memory) code
+            let ret = DayTwo.WriteResult memory res |> Program (instructionPtr+1)
+            ret
+
+    let result =  Program 0 ins
+    printf "%A" result
 
 
     printfn "Hello World from F#!"
