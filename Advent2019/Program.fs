@@ -121,17 +121,8 @@ module DayTwo  =
     let runProgram input = 
         0
 
-    //let rec runProgres input idx = 
-    //    let instruction = ReadInstruction idx input
-    //    if GetOpCode instruction = OPCode.Halt  then
-    //        0
-    //    else
-    //        let res = InstructionResult instruction
-    //    0
-
 [<EntryPoint>]
 let main argv =
-    let programA = "1,0,0,0,99"
     let ins = DayTwo.linesToInts DayTwo.inn
     let mutable mutIns = ins
     let mutable completed = false;
