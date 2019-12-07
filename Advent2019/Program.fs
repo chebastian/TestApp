@@ -62,14 +62,10 @@ module DayTwo  =
         | _ -> OPCode.Error
 
     let GetAdresses input = 
-        match input with
-        | [_;a;b;_] -> (int a, int b)
-        | _ -> raise (new System.ArgumentException("No src and dest provided"))
+        (Seq.item 1 input,Seq.item 2 input)
 
-    let GetOutAddr input =
-        match input with
-        | [_;_;_;addr] -> int addr
-        | _ -> raise (new System.ArgumentException("No src and dest provided"))
+    let GetOutAddr (input:seq<int>) :int =
+        Seq.item 3 input
 
     let GetValueAt (input:List<int>) (a,b) = 
         (int (input.Item a),int (input.Item b))
@@ -92,13 +88,16 @@ module DayTwo  =
         | _ -> raise (new System.ArgumentException("OP Code not found"))
 
 
-    let ReadInstruction i input=
+    let ReadInstruction i input =
         let len = (instructionLength * i)
         input |> Seq.skip len |> Seq.take instructionLength
 
-    let GetInstruction i input =
-        let inst = ReadInstruction i input
-        {Code=GetOpCode(Seq.item 0 inst);Out=GetOutAddr(inst); Para=GetAdresses(inst)}
+    let GetInstruction i myin =
+        let inst = ReadInstruction i myin
+        let outDD = GetOutAddr inst
+        let opt = inst |> Seq.toList |> GetOpCode
+        let par = GetAdresses inst
+        {Code=opt;Out=outDD; Para=par} 
 
     let Apply input =
         let addr = GetAdresses input
@@ -113,13 +112,13 @@ module DayTwo  =
     let runProgram input = 
         0
 
-    let rec runProgres input idx = 
-        let instruction = ReadInstruction idx input
-        if GetOpCode instruction = OPCode.Halt  then
-            0
-        else
-            let res = InstructionResult instruction
-        0
+    //let rec runProgres input idx = 
+    //    let instruction = ReadInstruction idx input
+    //    if GetOpCode instruction = OPCode.Halt  then
+    //        0
+    //    else
+    //        let res = InstructionResult instruction
+    //    0
 
 [<EntryPoint>]
 let main argv =
