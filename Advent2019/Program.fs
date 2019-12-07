@@ -118,27 +118,49 @@ module DayTwo  =
         | OPCode.Mul ->  ((fst vals) * (snd vals)) |> listWriteAt input outd 
         | _ -> raise (new System.ArgumentException("OP Code not found"))
  
-    let runProgram input = 
-        0
+    let runProgram input verb noun = 
+        let frst = Seq.head input 
+        let rest = Seq.skip 3 input
+        //let ins = linesToInts inn 
+        let ins = frst :: verb :: noun :: Seq.toList rest
+        let len =  (Seq.length ins ) / 4
+
+        let rec Program instructionPtr memory =
+            let code = GetInstruction instructionPtr memory
+            if code.Code = OPCode.Halt then
+                Seq.item 0 memory
+            else 
+                let res = ResultOf (Seq.toList memory) code
+                let ret = WriteResult memory res |> Program (instructionPtr+1)
+                ret
+
+        Program 0 ins
 
 [<EntryPoint>]
 let main argv =
     let ins = DayTwo.linesToInts DayTwo.inn
-    let mutable mutIns = ins
-    let mutable completed = false;
-    let len =  (Seq.length ins ) / 4
+    //let mutable mutIns = ins
+    //let mutable completed = false;
+    //let len =  (Seq.length ins ) / 4
 
-    let rec Program instructionPtr memory =
-        let code = DayTwo.GetInstruction instructionPtr memory
-        if code.Code = DayTwo.OPCode.Halt then
-            Seq.item 0 memory
-        else 
-            let res = DayTwo.ResultOf (Seq.toList memory) code
-            let ret = DayTwo.WriteResult memory res |> Program (instructionPtr+1)
-            ret
+    //let rec Program instructionPtr memory =
+    //    let code = DayTwo.GetInstruction instructionPtr memory
+    //    if code.Code = DayTwo.OPCode.Halt then
+    //        Seq.item 0 memory
+    //    else 
+    //        let res = DayTwo.ResultOf (Seq.toList memory) code
+    //        let ret = DayTwo.WriteResult memory res |> Program (instructionPtr+1)
+    //        ret
+    //let result =  Program 0 ins
 
-    let result =  Program 0 ins
-    printf "%A" result
+    for x in [0..100] do
+        for y in [0..100] do 
+            let result = DayTwo.runProgram ins x y
+            //printf "%A" result
+            if result = 19690720 then
+                (x,y)
+            else
+                (0,0)
 
 
     printfn "Hello World from F#!"
