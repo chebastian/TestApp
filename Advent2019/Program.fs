@@ -29,7 +29,7 @@ let dayTwo input =
     // another comment
 
 module DayTwo  = 
-    let inn = "1,0,0,3,1,1,2,3,1,3,4,3,1,5,0,3,2,1,9,19,1,19,5,23,1,13,23,27,1,27,6,31,2,31,6,35,2,6,35,39,1,39,5,43,1,13,43,47,1,6,47,51,2,13,51,55,1,10,55,59,1,59,5,63,1,10,63,67,1,67,5,71,1,71,10,75,1,9,75,79,2,13,79,83,1,9,83,87,2,87,13,91,1,10,91,95,1,95,9,99,1,13,99,103,2,103,13,107,1,107,10,111,2,10,111,115,1,115,9,119,2,119,6,123,1,5,123,127,1,5,127,131,1,10,131,135,1,135,6,139,1,10,139,143,1,143,6,147,2,147,13,151,1,5,151,155,1,155,5,159,1,159,2,163,1,163,9,0,99,2,14,0,0"
+    let inn = "1,12,2,3,1,1,2,3,1,3,4,3,1,5,0,3,2,1,9,19,1,19,5,23,1,13,23,27,1,27,6,31,2,31,6,35,2,6,35,39,1,39,5,43,1,13,43,47,1,6,47,51,2,13,51,55,1,10,55,59,1,59,5,63,1,10,63,67,1,67,5,71,1,71,10,75,1,9,75,79,2,13,79,83,1,9,83,87,2,87,13,91,1,10,91,95,1,95,9,99,1,13,99,103,2,103,13,107,1,107,10,111,2,10,111,115,1,115,9,119,2,119,6,123,1,5,123,127,1,5,127,131,1,10,131,135,1,135,6,139,1,10,139,143,1,143,6,147,2,147,13,151,1,5,151,155,1,155,5,159,1,159,2,163,1,163,9,0,99,2,14,0,0"
     type OPCode = 
     | Add = 1
     | Mul = 2
@@ -69,8 +69,12 @@ module DayTwo  =
     let GetValueAt (input:list<int>) (a,b) = 
         (int (input.Item a),int (input.Item b))
 
-    let listWriteAt (input) addr a = List.mapi (fun i x -> if i = addr then a else x) input
+    let listWriteAt (input) addr a = Seq.mapi (fun i x -> if i = addr then a else x) input
     let strWriteAt (input) addr a = String.mapi (fun i x -> if i = addr then a else x) input
+
+    let WriteResult input (result:InstructionResult) =
+        listWriteAt input result.Addres result.Value
+        
  
     let MapToCode input =
         let addr = GetAdresses input
@@ -90,6 +94,12 @@ module DayTwo  =
     let ReadInstruction i input =
         let len = (instructionLength * i)
         input |> Seq.skip len |> Seq.take instructionLength
+
+    let NumberOfInstructions ins =
+        Seq.length |> ins |> (/) 4
+
+    let ReadValue input addr =
+        Seq.item addr 
 
     let GetInstruction i myin =
         let inst = ReadInstruction i myin
@@ -121,9 +131,23 @@ module DayTwo  =
 
 [<EntryPoint>]
 let main argv =
+    let programA = "1,0,0,0,99"
     let ins = DayTwo.linesToInts DayTwo.inn
-    let inst=DayTwo.GetInstruction 0 ins
-    let res = DayTwo.ResultOf (Seq.toList ins) inst
+    let mutable mutIns = ins
+    let mutable completed = false;
+    let len =  (Seq.length ins ) / 4
+    
+    for x in [0..len]  do 
+        let inst = DayTwo.GetInstruction x mutIns
+        if(inst.Code = DayTwo.OPCode.Halt) then
+            let result = Seq.item 0 mutIns
+            ()
+            
+
+        let res = DayTwo.ResultOf (Seq.toList mutIns) inst
+        mutIns <- DayTwo.WriteResult mutIns res
+
+
     printfn "Hello World from F#!"
     let frst = dayOne lines
     let snd = dayTwo lines 
