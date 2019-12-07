@@ -139,19 +139,6 @@ module DayTwo  =
 [<EntryPoint>]
 let main argv =
     let ins = DayTwo.linesToInts DayTwo.inn
-    //let mutable mutIns = ins
-    //let mutable completed = false;
-    //let len =  (Seq.length ins ) / 4
-
-    //let rec Program instructionPtr memory =
-    //    let code = DayTwo.GetInstruction instructionPtr memory
-    //    if code.Code = DayTwo.OPCode.Halt then
-    //        Seq.item 0 memory
-    //    else 
-    //        let res = DayTwo.ResultOf (Seq.toList memory) code
-    //        let ret = DayTwo.WriteResult memory res |> Program (instructionPtr+1)
-    //        ret
-    //let result =  Program 0 ins
 
     for x in [0..100] do
         for y in [0..100] do 
