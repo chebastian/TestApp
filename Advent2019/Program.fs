@@ -1,6 +1,8 @@
 ﻿// Learn more about F# at http://fsharp.org
 
+
 open System
+
 open System.IO;
 
 let lines = File.ReadLines("./input/one.txt")
@@ -28,41 +30,95 @@ let dayTwo input =
     // another comment
 
 module DayTwo  = 
+    let lines = File.ReadLines("./input/2a.txt")
     type OPCode = 
     | Add = 1
     | Mul = 2
     | Error = -1
     | Halt = 99
 
-    let delim = ','
+    type InstructionResult(value:int,addr:int) = 
+        member this.Value = value 
+        member this.Addres = addr
 
-    let GetOpCode (input:string) = 
-        match input.Split(delim) |> Array.toList with
-        | x::xs when x = "1" -> OPCode.Add
-        | x::xs when x = "2" -> OPCode.Mul
-        | x::xs when x = "99" -> OPCode.Halt
+    type Instruction = {Code:OPCode;Para:(int*int);Out:int}
+
+    let delim = ','
+    let instructionLength = 4
+
+    let linesToInts (input:string) = 
+        input.Split ',' |> Array.toSeq |> Seq.map (fun x -> int x)
+
+    let mapLinesToInts (input:seq<string>) = 
+        input |> Seq.item 0 |> linesToInts
+
+    let seqIn = mapLinesToInts lines
+
+    let GetOpCode input = 
+        match input with
+        | x::xs when x = 1 -> OPCode.Add
+        | x::xs when x = 2 -> OPCode.Mul
+        | x::xs when x = 99 -> OPCode.Halt
         | _ -> OPCode.Error
 
-    let GetAdresses (input:string) = 
-        match input.Split(delim) |> Array.toList with
-        | [_;a;b;_] -> (int a, int b)
-        | _ -> raise (new System.ArgumentException("No src and dest provided"))
+    let GetAdresses input = 
+        (Seq.item 1 input,Seq.item 2 input)
 
-    let GetOutAddr (input:string) = 
-        match input.Split(delim) |> Array.toList with
-        | [_;_;_;addr] -> addr
-        | _ -> raise (new System.ArgumentException("No src and dest provided"))
+    let GetOutAddr (input:seq<int>) :int =
+        Seq.item 3 input
 
-    let GetValuesAt (input:string) (a,b) = 
-        let nums = input.Split(delim)
-        (nums.GetValue(int a),nums.GetValue(int b))
+    let GetValueAt (input:List<int>) (a,b) = 
+        (int (input.Item a),int (input.Item b))
 
-    let Apply (input:string) (op:OPCode) (rest:string)=
+    let listWriteAt (input) addr a = List.mapi (fun i x -> if i = addr then a else x) input
+    let strWriteAt (input) addr a = String.mapi (fun i x -> if i = addr then a else x) input
+ 
+    let MapToCode input =
         let addr = GetAdresses input
         let outd = GetOutAddr input
+        let op = GetOpCode input
+        (op,addr,outd)
+
+
+    let ResultOf input (instr:Instruction)= 
+        let vals = GetValueAt input instr.Para
+        match instr.Code with
+        | OPCode.Add ->  new InstructionResult(((fst vals) + (snd vals)),instr.Out)
+        | OPCode.Mul ->  new InstructionResult(((fst vals) * (snd vals)) ,instr.Out)
+        | _ -> raise (new System.ArgumentException("OP Code not found"))
+
+
+    let ReadInstruction i input =
+        let len = (instructionLength * i)
+        input |> Seq.skip len |> Seq.take instructionLength
+
+    let GetInstruction i myin =
+        let inst = ReadInstruction i myin
+        let outDD = GetOutAddr inst
+        let opt = inst |> Seq.toList |> GetOpCode
+        let par = GetAdresses inst
+        {Code=opt;Out=outDD; Para=par} 
+
+    let Apply input =
+        let addr = GetAdresses input
+        let outd = GetOutAddr input
+        let vals = GetValueAt input addr
+        let op = GetOpCode input
         match op with
-        | Add ->  0
-        | _ -> 0
+        | OPCode.Add ->   ((fst vals) + (snd vals)) |> listWriteAt input outd 
+        | OPCode.Mul ->  ((fst vals) * (snd vals)) |> listWriteAt input outd 
+        | _ -> raise (new System.ArgumentException("OP Code not found"))
+ 
+    let runProgram input = 
+        0
+
+    //let rec runProgres input idx = 
+    //    let instruction = ReadInstruction idx input
+    //    if GetOpCode instruction = OPCode.Halt  then
+    //        0
+    //    else
+    //        let res = InstructionResult instruction
+    //    0
 
 [<EntryPoint>]
 let main argv =
