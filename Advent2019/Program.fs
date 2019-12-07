@@ -1,6 +1,8 @@
 ﻿// Learn more about F# at http://fsharp.org
 
+
 open System
+
 open System.IO;
 
 let lines = File.ReadLines("./input/one.txt")
@@ -28,16 +30,31 @@ let dayTwo input =
     // another comment
 
 module DayTwo  = 
+    let lines = File.ReadLines("./input/2a.txt")
     type OPCode = 
     | Add = 1
     | Mul = 2
     | Error = -1
     | Halt = 99
 
+    type InstructionResult(value:int,addr:int) = 
+        member this.Value = value 
+        member this.Addres = addr
+
+    type Instruction = {Code:OPCode;Para:(int*int);Out:int}
+
     let delim = ','
     let instructionLength = 4
 
-    let GetOpCode input =
+    let linesToInts (input:string) = 
+        input.Split ',' |> Array.toSeq |> Seq.map (fun x -> int x)
+
+    let mapLinesToInts (input:seq<string>) = 
+        input |> Seq.item 0 |> linesToInts
+
+    let seqIn = mapLinesToInts lines
+
+    let GetOpCode input = 
         match input with
         | x::xs when x = 1 -> OPCode.Add
         | x::xs when x = 2 -> OPCode.Mul
@@ -66,15 +83,6 @@ module DayTwo  =
         let op = GetOpCode input
         (op,addr,outd)
 
-    type InstructionResult(value:int,addr:int) = 
-        member this.Value = value 
-        member this.Addres = addr
-
-    //type Instruction (code:OPCode,paraAddr:(int*int),dstAddr:int) = 
-    //    member this.Code = code
-    //    member this.Para = paraAddr
-    //    member this.Out = dstAddr
-    type Instruction = {Code:OPCode;Para:(int*int);Out:int}
 
     let ResultOf input (instr:Instruction)= 
         let vals = GetValueAt input instr.Para
@@ -83,9 +91,14 @@ module DayTwo  =
         | OPCode.Mul ->  new InstructionResult(((fst vals) * (snd vals)) ,instr.Out)
         | _ -> raise (new System.ArgumentException("OP Code not found"))
 
+
     let ReadInstruction i input=
         let len = (instructionLength * i)
-        input |> List.skip len |> List.take instructionLength
+        input |> Seq.skip len |> Seq.take instructionLength
+
+    let GetInstruction i input =
+        let inst = ReadInstruction i input
+        {Code=GetOpCode(Seq.item 0 inst);Out=GetOutAddr(inst); Para=GetAdresses(inst)}
 
     let Apply input =
         let addr = GetAdresses input
@@ -96,20 +109,17 @@ module DayTwo  =
         | OPCode.Add ->   ((fst vals) + (snd vals)) |> listWriteAt input outd 
         | OPCode.Mul ->  ((fst vals) * (snd vals)) |> listWriteAt input outd 
         | _ -> raise (new System.ArgumentException("OP Code not found"))
-
-    let ApplyA input num = 
-        ReadInstruction num input |> Apply
-
+ 
     let runProgram input = 
         0
 
-    //let rec runProgres input idx = 
-    //    let instruction = ReadInstruction idx input
-    //    if GetOpCode instruction = OPCode.Halt  then
-    //        0
-    //    else
-    //        let res = InstructionResult instruction
-    //    0
+    let rec runProgres input idx = 
+        let instruction = ReadInstruction idx input
+        if GetOpCode instruction = OPCode.Halt  then
+            0
+        else
+            let res = InstructionResult instruction
+        0
 
 [<EntryPoint>]
 let main argv =
