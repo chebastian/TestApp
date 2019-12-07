@@ -66,10 +66,26 @@ module DayTwo  =
         let op = GetOpCode input
         (op,addr,outd)
 
-    let ReadInstruction input i =
+    type InstructionResult(value:int,addr:int) = 
+        member this.Value = value 
+        member this.Addres = addr
+
+    //type Instruction (code:OPCode,paraAddr:(int*int),dstAddr:int) = 
+    //    member this.Code = code
+    //    member this.Para = paraAddr
+    //    member this.Out = dstAddr
+    type Instruction = {Code:OPCode;Para:(int*int);Out:int}
+
+    let ResultOf input (instr:Instruction)= 
+        let vals = GetValueAt input instr.Para
+        match instr.Code with
+        | OPCode.Add ->  new InstructionResult(((fst vals) + (snd vals)),instr.Out)
+        | OPCode.Mul ->  new InstructionResult(((fst vals) * (snd vals)) ,instr.Out)
+        | _ -> raise (new System.ArgumentException("OP Code not found"))
+
+    let ReadInstruction i input=
         let len = (instructionLength * i)
         input |> List.skip len |> List.take instructionLength
-
 
     let Apply input =
         let addr = GetAdresses input
@@ -79,7 +95,21 @@ module DayTwo  =
         match op with
         | OPCode.Add ->   ((fst vals) + (snd vals)) |> listWriteAt input outd 
         | OPCode.Mul ->  ((fst vals) * (snd vals)) |> listWriteAt input outd 
-        | _ -> input
+        | _ -> raise (new System.ArgumentException("OP Code not found"))
+
+    let ApplyA input num = 
+        ReadInstruction num input |> Apply
+
+    let runProgram input = 
+        0
+
+    //let rec runProgres input idx = 
+    //    let instruction = ReadInstruction idx input
+    //    if GetOpCode instruction = OPCode.Halt  then
+    //        0
+    //    else
+    //        let res = InstructionResult instruction
+    //    0
 
 [<EntryPoint>]
 let main argv =
