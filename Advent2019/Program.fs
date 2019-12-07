@@ -35,6 +35,7 @@ module DayTwo  =
     | Halt = 99
 
     let delim = ','
+    let instructionLength = 4
 
     let GetOpCode (input:string) = 
         match input.Split(delim) |> Array.toList with
@@ -50,15 +51,38 @@ module DayTwo  =
 
     let GetOutAddr (input:string) = 
         match input.Split(delim) |> Array.toList with
-        | [_;_;_;addr] -> addr
+        | [_;_;_;addr] -> int addr
         | _ -> raise (new System.ArgumentException("No src and dest provided"))
 
-    let Apply (input:string) (op:OPCode) (rest:string)=
+    let GetValueAt (input:string) (a,b) = 
+        let split =  input.Split(delim) |> Array.toList 
+        (int (split.Item a),int (split.Item b))
+
+    let listWriteAt (input) addr a = List.mapi (fun i x -> if i = addr then a else x) input
+    let strWriteAt (input) addr a = String.mapi (fun i x -> if i = addr then a else x) input
+ 
+    let MapToCode (input:string) = 
         let addr = GetAdresses input
         let outd = GetOutAddr input
+        let op = GetOpCode input
+        (op,addr,outd)
+
+    let ReadInstruction (input:string) i=
+        let split =  input.Split(delim) |> Array.toList 
+        let len = (instructionLength * i)
+        split |> List.skip len |> List.take instructionLength
+
+
+    let Apply (input:string) =
+        let split =  input.Split(delim) |> Array.toList 
+        let addr = GetAdresses input
+        let outd = GetOutAddr input
+        let vals = GetValueAt input addr
+        let op = GetOpCode input
         match op with
-        | Add ->  0
-        | _ -> 0
+        | OPCode.Add ->  string ((fst vals) + (snd vals)) |> listWriteAt split outd 
+        | OPCode.Mul -> string ((fst vals) * (snd vals)) |> listWriteAt split outd 
+        | _ -> split
 
 [<EntryPoint>]
 let main argv =
