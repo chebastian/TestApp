@@ -136,6 +136,88 @@ module DayTwo  =
 
         Program 0 ins
 
+    let findResult =
+        let ins = linesToInts inn
+        for x in [0..100] do
+            for y in [0..100] do 
+                let result = runProgram ins x y
+                if result = 19690720 then
+                    (x,y)
+                else
+                    (0,0)
+
+
+module DayThree =
+
+    let lines = File.ReadLines("./input/3.txt")
+
+    type Direction = |Left|Up|Down|Right
+    type DayInput = {D:Direction;Len:int}
+
+    let inputA = "R998,U547,L703,D251,L776,U837,R100,U240,R197,D216,L220,U606,L437,U56,R940,U800,L968,D464,L870,D797,L545,D824,R790,U5,R347,D794,R204,U538,L247,U385,L103,D260,L590,U813,L549,U309,L550,U321,R862,D686,R368,D991,R451,D836,R264,D138,L292,D319,L784,D369,R849,U865,R776,D726,R223,D118,L790,D208,L836,D592,R310,D36,R991,U674,L205,U407,R422,U350,L126,D320,L239,U353,L509,U48,R521,D544,L157,D551,R614,D493,R407,D965,R498,U248,R826,U573,L782,D589,R616,D992,L806,D745,R28,U142,L333,D849,L858,D617,R167,U341,R46,U940,L615,D997,L447,D604,R148,U561,R925,D673,R441,U200,R458,U193,L805,D723,L208,U600,L926,U614,R660,D183,L408,D834,R248,U354,L110,U391,L37,U599,L287,U28,R859,D936,L404,D952,R11,U20,R708,U218,L800,U750,R936,D213,R6,D844,R728,D391,R114,U406,R390,U791,L199,D397,R476,D583,R99,U419,R575,D836,L896,U780,L77,U964,R441,U723,R248,D170,R527,D94,L39,U645,L338,D728,R503,U641,L358,D287,R171,U368,R176,D986,R821,U912,L231,D206,L451,U900,L35,D490,R190,D180,L937,D500,R157,U989,L336,U202,R178,U52,R931,U306,L85,D866,R756,U715,L521,D977,R936,U4,R207,D384,L785,U138,L682,U488,L537,U250,L877,D446,R849,U35,R258,U784,R263,D494,L324,U601,R302,U473,L737,D143,R184,D967,R95,U51,L713,U733,R297,U740,R677,D715,R750,U143,L980,U260,R915,D535,R202,U460,R365,U956,L73,U441,R182,D982,L869,D755,L837,D933,L856,D341,R189,D519,L387,D144,R575,U682,R317,U838,R154,D201,R237,D410,L43,U853,L495,U983,L953,U220,R697,D592,R355,U377,R792,U824,L441,U783,R258,D955,R451,D178,L151,D435,L232,U923,L663,U283,L92,D229,R514"
+
+    //let inputToPInput (input:string) = 
+    //    input.Split(',')  |> Array.map (fun item -> )
+        
+    let strToDayInput (str:string) =
+        let dd = match str.Chars 0 with 
+                | 'R' -> Direction.Right
+                | 'L' -> Direction.Left
+                | 'U' -> Direction.Up
+                | 'D' -> Direction.Down
+                | _ -> Direction.Up
+
+        let len = str.ToCharArray() |> Array.skip 1 |> string |> int
+        {D=dd;Len=len}
+
+    let test = strToDayInput "D123"
+    type Dir =
+    | Hor
+    | Vert
+
+
+    type Line = {x1:int;y1:int;x2:int;y2:int;}
+
+    type PInput = {line:Line;d:Dir}
+
+    type Vector = {x:float;y:float}
+
+    let aline = {x1=1;x2=5;y1=1;y2=1}
+    let aline2 = {x1=3;x2=3;y1=1;y2=3}
+    let bline = {x1=6;x2=6;y1=1;y2=6}
+    let leftline = {x1=8;x2=2;y1=1;y2=1}
+    let upline = {x1=2;x2=2;y1=9;y2=1}
+
+    let apin = {line=aline;d=Dir.Hor}
+    let bpin = {line=bline;d=Dir.Vert}
+    let cline = {line=leftline;d=Dir.Hor}
+    let dline = {line=upline;d=Dir.Vert}
+    let iline = {line=aline2;d=Dir.Vert}
+
+    let lineDir (line:Line) =
+        {x=float(line.x1-line.x2);y=float(line.y1 - line.y2)}
+
+    let linePoints (a:PInput) =
+
+        let aminbmax  a1 a2 = 
+            (min a1 a2, max a1 a2)
+
+        let xrange = aminbmax a.line.x1 a.line.x2
+        let yrange = aminbmax a.line.y1 a.line.y2
+
+        if a.d = Dir.Hor then
+            let xs = [fst xrange..snd xrange]
+            List.map (fun x -> (x,a.line.y1)) xs
+        else
+            let xs = [fst yrange..snd yrange]
+            List.map (fun y -> (a.line.x1,y)) xs
+
+    let lineIntersectionPoint (a:PInput, b:PInput)  = 
+        let ap = linePoints a
+        let bp = linePoints b 
+        List.where (fun x -> List.contains x ap) bp
+
+ 
 [<EntryPoint>]
 let main argv =
     let ins = DayTwo.linesToInts DayTwo.inn
@@ -143,7 +225,6 @@ let main argv =
     for x in [0..100] do
         for y in [0..100] do 
             let result = DayTwo.runProgram ins x y
-            //printf "%A" result
             if result = 19690720 then
                 (x,y)
             else
